@@ -88,7 +88,7 @@ findSuitableXY = () => {
         let clear = true;
         for(let i = 0; i < divs.length; i++){
             if(within(x,parseInt(divs[i].style.left),divWidth)
-            && within(y,parseInt(divs[i].style.top).divHeight)){
+            && within(y,parseInt(divs[i].style.top),divHeight)){
                 clear = false;
                 break;
             }
