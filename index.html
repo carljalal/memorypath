@@ -101,6 +101,14 @@ repositionElement = (element) => {
     element.style.left = xy.x;
     element.style.top = xy.y;
 }
+
+resetDivs = () => {
+    for(let i = 0; i < numDivs; i++){
+        repositionElement(divs[i]);
+        divs[i].init = true;
+        divs[i].order = 0;
+    }
+}
 resetDivs();
 
 init = () => {
