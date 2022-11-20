@@ -1,0 +1,166 @@
+<html>
+<body>
+<script>
+
+let timerLimit = 250;
+let divWidth = 50;
+let divHeight = 50;
+let numDivs = 4;
+
+let divs = [];
+let timerid = {};
+
+let scoreNum = 0;
+let errorsNum = 0;
+
+let greenTime = 0;
+let redTime = 0;
+
+for(let i = 0; i < numDivs; i++){
+    // targets
+    divs.push(document.createElement("div"));
+    document.body.append(divs[i]);
+    divs[i].style.width = divWidth;
+    divs[i].style.height = divHeight;
+    divs[i].style.position = "absolute";
+    divs[i].style.top = 500;
+    divs[i].style.left = 500;
+    let currentDiv = divs[i];
+    currentDiv.init = true;
+    currentDiv.order = 0;
+    currentDiv.addEventListener("pointerdown", () => {move(currentDiv,true)});
+}
+
+let score = document.createElement("div");
+let errors = document.createElement("div");
+let timerEl = document.createElement("div");
+initButton = document.createElement("button");
+initButton.innerHTML = "init";
+
+document.body.append(score);
+document.body.append(errors);
+document.body.append(timerEl);
+document.body.append(initButton);
+
+let basicRandom = (min, max) => {
+    return Math.floor(Math.random() * (max-min + 1)) + min;
+}
+
+let moveTimer = () => {
+    timerTime--;
+    if(redTime ==1){
+        document.body.style.backgroundColor = "white";
+    }
+    if(greenTime == 1){
+        document.body.style.backgroundColor = "white";
+    }
+    if(redTime > 0) redTime--;
+    if(greenTime > 0) greenTime--;
+    if(timerTime == 0){
+        error();
+    }
+    timerEl.innerHTML = timerTime;
+}
+
+initTimer = () => {
+    clearInterval(timerId);
+    timerId = setInterval(moveTimer,1);
+    timerTime = timerLimit;
+}
+
+resetScores = () => {
+    scoreNum = 0;
+    errorsNum = 0;
+}
+
+within = (a,b,range) => {
+    return Math.abs(a-b) < range;
+}
+
+findSuitableXY = () => {
+    let x = 0;
+    let y = 0;
+    for(let t = 0; t < 10000; t++){
+        x = basicRandom(divWidth,window.innerWidth - divWidth);
+        y = basicRandom(divHeight,window.innerHeight - divHeight);
+        let clear = true;
+        for(let i = 0; i < divs.length; i++){
+            if(within(x,parseInt(divs[i].style.left),divWidth)
+            && within(y,parseInt(divs[i].style.top).divHeight)){
+                clear = false;
+                break;
+            }
+        }
+        if (clear) break;
+    }
+    return {x:x, y:y};
+}
+
+repositionElement = (element) => {
+    let xy = findSuitableXY();
+    element.style.left = xy.x;
+    element.style.top = xy.y;
+}
+resetDivs();
+
+init = () => {
+    resetScores();
+    resetDivs();
+    initTimer();
+}
+
+correct = () => {
+    scoreNum++;
+    timerTime = timerLimit;
+    greenTime = 50;
+    document.body.style.backgroundColor = "lime";
+    shiftDivsOrder();
+}
+
+shiftDivsOrder = () => {
+    divs.forEach(d => {
+        if(d.init == false){
+            d.order--;
+            if(d.order<1) d.order = numDivs;
+        }
+    });
+}
+
+initButton.onclick = () => {
+    init();
+}
+
+move = (divElement, scored = false) => {
+    if(scored){
+        if(divElement.init == true){
+            divElement.init = false;
+            correct();
+        }
+        else if (divElement.order == 1){
+
+        }
+        else {
+            error();
+        }
+    }
+    refreshScoreDisplay();
+    repositionElement(divElement);
+}
+
+error = () => {
+    redTime = 50;
+    document.body.style.backgroundColor = "red";
+    timerTime = timerLimit;
+    lastClickedDiv = {};
+    resetDivs();
+    errorsNum++;
+    errors.innerHTML = errorsNum;
+}
+
+
+
+
+
+</script>
+</body>
+</html>
