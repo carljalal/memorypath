@@ -19,13 +19,15 @@ let redTime = 0;
 for(let i = 0; i < numDivs; i++){
     // targets
     divs.push(document.createElement("div"));
-    document.body.append(divs[i]);
-    divs[i].style.width = divWidth;
-    divs[i].style.height = divHeight;
-    divs[i].style.position = "absolute";
-    divs[i].style.top = 500;
-    divs[i].style.left = 500;
     let currentDiv = divs[i];
+    document.body.append(currentDiv);
+    currentDiv.style.width = divWidth;
+    currentDiv.style.height = divHeight;
+    currentDiv.style.position = "absolute";
+    currentDiv.style.top = 500;
+    currentDiv.style.left = 500;
+    currentDiv.style.backgroundColor = "black";
+
     currentDiv.init = true;
     currentDiv.order = 0;
     currentDiv.addEventListener("pointerdown", () => {move(currentDiv,true)});
