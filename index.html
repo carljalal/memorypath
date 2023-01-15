@@ -2,10 +2,44 @@
 <body>
 <script>
 
+
+
+
+rangeForNumDivs = document.createElement("input");
+document.body.append(rangeForNumDivs);
+
+rangeSpan = document.createElement("span");
+document.body.append(rangeSpan);
+
+
+
+rangeForNumDivs.type = "range";
+rangeForNumDivs.min = 1;
+rangeForNumDivs.max = 9;
+rangeForNumDivs.value = 4;
+rangeSpan.innerHTML = rangeForNumDivs.value;
+
+
+rangeForNumDivs.addEventListener("pointermove",
+    () => {
+        if(rangeSpan.innerHTML != rangeForNumDivs.value) {
+            rangeSpan.innerHTML = rangeForNumDivs.value;
+            numDivs = rangeForNumDivs.value;
+            initDivs();
+        }
+    }
+)
+
+
+
+
+
+
 let timerLimit = 250;
 let divWidth = 50;
 let divHeight = 50;
-let numDivs = 4;
+let numDivs = rangeForNumDivs.value;
+let numDivsCurrent = 0;
 
 let divs = [];
 let timerId = {};
@@ -16,22 +50,34 @@ let errorsNum = 0;
 let greenTime = 0;
 let redTime = 0;
 
-for(let i = 0; i < numDivs; i++){
-    // targets
-    divs.push(document.createElement("div"));
-    let currentDiv = divs[i];
-    document.body.append(currentDiv);
-    currentDiv.style.width = divWidth;
-    currentDiv.style.height = divHeight;
-    currentDiv.style.position = "absolute";
-    currentDiv.style.top = 500;
-    currentDiv.style.left = 500;
-    currentDiv.style.backgroundColor = "black";
+let initDivs = (init = false) => {
+    let clearSize = divs.length;
+    while (divs.length > 0){
+        divs[divs.length-1].remove();
+        divs.pop();
+    }
 
-    currentDiv.init = true;
-    currentDiv.order = 0;
-    currentDiv.addEventListener("pointerdown", () => {move(currentDiv,true)});
+    for(let i = 0; i < numDivs; i++){
+        // targets
+        divs.push(document.createElement("div"));
+        let currentDiv = divs[i];
+        document.body.append(currentDiv);
+        currentDiv.style.width = divWidth;
+        currentDiv.style.height = divHeight;
+        currentDiv.style.position = "absolute";
+        currentDiv.style.top = 500;
+        currentDiv.style.left = 500;
+        currentDiv.style.backgroundColor = "black";
+
+        currentDiv.init = true;
+        currentDiv.order = 0;
+        currentDiv.addEventListener("pointerdown", () => {move(currentDiv,true)});
+    }
+    numDivsCurrent = numDivs;
+    resetDivs();
 }
+initDivs();
+
 
 let score = document.createElement("div");
 let errors = document.createElement("div");
@@ -39,12 +85,19 @@ let timerEl = document.createElement("div");
 initButton = document.createElement("button");
 initButton.innerHTML = "init";
 
+let stopButton = document.createElement("button");
+stopButton.innerHTML = "stop";
+stopButton.onclick = () => {
+
+};
+
+
 document.body.append(score);
 document.body.append(errors);
 document.body.append(timerEl);
 document.body.append(initButton);
 
-let basicRandom = (min, max) => {
+function basicRandom (min, max) {
     return Math.floor(Math.random() * (max-min + 1)) + min;
 }
 
@@ -75,11 +128,11 @@ resetScores = () => {
     errorsNum = 0;
 }
 
-within = (a,b,range) => {
+function within (a,b,range) {
     return Math.abs(a-b) < range;
 }
 
-findSuitableXY = () => {
+function findSuitableXY () {
     let x = 0;
     let y = 0;
     for(let t = 0; t < 10000; t++){
@@ -98,20 +151,20 @@ findSuitableXY = () => {
     return {x:x, y:y};
 }
 
-repositionElement = (element) => {
+function repositionElement (element) {
     let xy = findSuitableXY();
     element.style.left = xy.x;
     element.style.top = xy.y;
 }
 
-resetDivs = () => {
+function resetDivs() {
     for(let i = 0; i < numDivs; i++){
         repositionElement(divs[i]);
         divs[i].init = true;
         divs[i].order = 0;
     }
 }
-resetDivs();
+
 
 init = () => {
     resetScores();
