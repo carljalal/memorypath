@@ -5,8 +5,14 @@
 
 </head>
 <body>
+<style>
+body {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+</style>
+Version 1.0.0
+<br>
 <script>
-
 
 
 
@@ -16,6 +22,7 @@ document.body.append(rangeForNumDivs);
 rangeSpan = document.createElement("span");
 document.body.append(rangeSpan);
 
+document.body.append(document.createElement("br"));
 
 
 rangeForNumDivs.type = "range";
@@ -87,14 +94,28 @@ initDivs();
 let score = document.createElement("div");
 let errors = document.createElement("div");
 let timerEl = document.createElement("div");
+timerEl.style.border = "2px solid black";
+timerEl.style.width = 110;
+timerEl.style.height = 18;
+timerEl.style.color = "green";
 initButton = document.createElement("button");
-initButton.innerHTML = "init";
+initButton.innerHTML = "start timer";
 
 let stopButton = document.createElement("button");
-stopButton.innerHTML = "stop";
+document.body.append(stopButton);
+stopButton.innerHTML = "stop timer";
 stopButton.onclick = () => {
-
+    clearInterval(timerId);
+    resetColors();
 };
+
+let resetScoresButton = document.createElement("button");
+document.body.append(resetScoresButton);
+resetScoresButton.innerHTML = "clear scores";
+resetScoresButton.onclick = () => {
+    resetScores();
+    timerEl.textContent = "";
+}
 
 
 document.body.append(score);
@@ -119,7 +140,10 @@ let moveTimer = () => {
     if(timerTime == 0){
         error();
     }
-    timerEl.innerHTML = timerTime;
+    timerEl.textContent = "";
+    for(let i = 0; i < timerTime/10;i++){
+        timerEl.textContent += "l";
+    }
 }
 
 initTimer = () => {
@@ -131,6 +155,12 @@ initTimer = () => {
 resetScores = () => {
     scoreNum = 0;
     errorsNum = 0;
+    refreshScoreDisplay();
+}
+
+resetColors = () => {
+    redTime = 0;
+    greenTime = 0;
 }
 
 function within (a,b,range) {
@@ -141,9 +171,10 @@ function findSuitableXY () {
     let x = 0;
     let y = 0;
     for(let t = 0; t < 10000; t++){
-        x = basicRandom(divWidth,window.innerWidth - divWidth);
-        y = basicRandom(divHeight,window.innerHeight - divHeight);
+        x = basicRandom(0,window.innerWidth - divWidth);
+        y = basicRandom(0,window.innerHeight - divHeight);
         let clear = true;
+        if(y < 120 && x < 160) continue;
         for(let i = 0; i < divs.length; i++){
             if(within(x,parseInt(divs[i].style.left),divWidth)
             && within(y,parseInt(divs[i].style.top),divHeight)){
@@ -194,8 +225,9 @@ shiftDivsOrder = () => {
     });
 }
 
-refreshScoreDisplay = () => {
-    score.innerHTML = scoreNum;
+function refreshScoreDisplay()  {
+    score.innerHTML = scoreNum + " correct";
+    errors.innerHTML = errorsNum + " incorrect";
 }
 
 initButton.onclick = () => {
@@ -226,7 +258,7 @@ error = () => {
     lastClickedDiv = {};
     resetDivs();
     errorsNum++;
-    errors.innerHTML = errorsNum;
+    errors.innerHTML = errorsNum + " incorrect";
 }
 
 
