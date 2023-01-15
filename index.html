@@ -10,9 +10,32 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 </style>
-Version 1.0.0
+Version 1.0.1 (1/15/2023)
 <br>
 <script>
+
+
+
+
+let timerLimit = 250;
+let divWidth = 50;
+let divHeight = 50;
+
+let UIWidth = 250;
+let UIHeight = 140;
+
+let numDivsCurrent = 0;
+
+let divs = [];
+let timerId = {};
+let numDivs = 4;
+
+let scoreNum = 0;
+let errorsNum = 0;
+
+let greenTime = 0;
+let redTime = 0;
+
 
 
 
@@ -28,7 +51,7 @@ document.body.append(document.createElement("br"));
 rangeForNumDivs.type = "range";
 rangeForNumDivs.min = 1;
 rangeForNumDivs.max = 9;
-rangeForNumDivs.value = 4;
+rangeForNumDivs.value = numDivs;
 rangeSpan.innerHTML = rangeForNumDivs.value;
 
 
@@ -43,24 +66,6 @@ rangeForNumDivs.addEventListener("pointermove",
 )
 
 
-
-
-
-
-let timerLimit = 250;
-let divWidth = 50;
-let divHeight = 50;
-let numDivs = rangeForNumDivs.value;
-let numDivsCurrent = 0;
-
-let divs = [];
-let timerId = {};
-
-let scoreNum = 0;
-let errorsNum = 0;
-
-let greenTime = 0;
-let redTime = 0;
 
 let initDivs = (init = false) => {
     let clearSize = divs.length;
@@ -91,6 +96,7 @@ let initDivs = (init = false) => {
 initDivs();
 
 
+
 let score = document.createElement("div");
 let errors = document.createElement("div");
 let timerEl = document.createElement("div");
@@ -98,30 +104,37 @@ timerEl.style.border = "2px solid black";
 timerEl.style.width = 110;
 timerEl.style.height = 18;
 timerEl.style.color = "green";
+timerEl.style.display = "none";
 initButton = document.createElement("button");
 initButton.innerHTML = "start timer";
 
 let stopButton = document.createElement("button");
-document.body.append(stopButton);
 stopButton.innerHTML = "stop timer";
 stopButton.onclick = () => {
     clearInterval(timerId);
     resetColors();
+    timerEl.style.display = "none";
 };
 
 let resetScoresButton = document.createElement("button");
-document.body.append(resetScoresButton);
 resetScoresButton.innerHTML = "clear scores";
 resetScoresButton.onclick = () => {
     resetScores();
     timerEl.textContent = "";
 }
+refreshScoreDisplay();
 
-
+document.body.append(initButton);
+document.body.append(stopButton);
+document.body.append(resetScoresButton);
 document.body.append(score);
 document.body.append(errors);
 document.body.append(timerEl);
-document.body.append(initButton);
+
+
+
+
+
 
 function basicRandom (min, max) {
     return Math.floor(Math.random() * (max-min + 1)) + min;
@@ -150,6 +163,7 @@ initTimer = () => {
     clearInterval(timerId);
     timerId = setInterval(moveTimer,1);
     timerTime = timerLimit;
+    timerEl.style.display = "block";
 }
 
 resetScores = () => {
@@ -174,7 +188,7 @@ function findSuitableXY () {
         x = basicRandom(0,window.innerWidth - divWidth);
         y = basicRandom(0,window.innerHeight - divHeight);
         let clear = true;
-        if(y < 120 && x < 160) continue;
+        if(y < UIHeight && x < UIWidth) continue;
         for(let i = 0; i < divs.length; i++){
             if(within(x,parseInt(divs[i].style.left),divWidth)
             && within(y,parseInt(divs[i].style.top),divHeight)){
