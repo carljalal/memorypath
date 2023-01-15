@@ -10,7 +10,7 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 </style>
-Version 1.0.2 (1/15/2023)
+Version 1.0.3 (1/15/2023)
 <br>
 <script>
 
@@ -52,13 +52,16 @@ rangeForNumDivs.type = "range";
 rangeForNumDivs.min = 1;
 rangeForNumDivs.max = 9;
 rangeForNumDivs.value = numDivs;
-rangeSpan.innerHTML = rangeForNumDivs.value;
+rangeSpan.innerHTML = rangeForNumDivs.value + " boxes";
 
 
 rangeForNumDivs.addEventListener("pointermove",
     () => {
-        if(rangeSpan.innerHTML != rangeForNumDivs.value) {
-            rangeSpan.innerHTML = rangeForNumDivs.value;
+        if(numDivs != rangeForNumDivs.value) {
+            
+            if(rangeForNumDivs.value == 1) rangeSpan.innerHTML = "1 box";
+            else rangeSpan.innerHTML = rangeForNumDivs.value + " boxes";
+
             numDivs = rangeForNumDivs.value;
             initDivs();
         }
