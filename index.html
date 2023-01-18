@@ -10,11 +10,37 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 </style>
-Version 1.0.3 (1/15/2023)
+Version 1.1.0 (1/18/2023)
 <br>
 <script>
 
+let clickHistoryInfo = {
+    sessionHistory:[],
+    thisSession:{
+        clicks:[],
+        totalTime:0,
+        averageSpeed:0
+    }
+};
 
+// move current click session info into history array and reset current click session info
+function newClickSession() {
+    clickHistoryInfo.sessionHistory.push(JSON.parse(JSON.stringify(clickHistoryInfo.thisSession)));
+    clickHistoryInfo.thisSession = {
+        clicks:[],
+        totalTime:0,
+        averageSpeed:0
+    }
+}
+
+function addClick(){
+    let session = clickHistoryInfo.thisSession;
+    session.clicks.push(performance.now());
+    if(session.clicks.length > 1){
+        session.totalTime = session.clicks[session.clicks.length - 1] - session.clicks[0];
+        session.averageSpeed = session.totalTime / (session.clicks.length - 1);
+    }
+}
 
 
 let timerLimit = 250;
@@ -46,6 +72,8 @@ rangeSpan = document.createElement("span");
 document.body.append(rangeSpan);
 
 document.body.append(document.createElement("br"));
+
+speedDisplay = document.createElement("div");
 
 
 rangeForNumDivs.type = "range";
@@ -133,6 +161,7 @@ document.body.append(resetScoresButton);
 document.body.append(score);
 document.body.append(errors);
 document.body.append(timerEl);
+document.body.append(speedDisplay);
 
 
 
@@ -172,6 +201,8 @@ initTimer = () => {
 resetScores = () => {
     scoreNum = 0;
     errorsNum = 0;
+    document.body.style.backgroundColor = "white";
+    newClickSession();
     refreshScoreDisplay();
 }
 
@@ -231,6 +262,7 @@ correct = () => {
     greenTime = 50;
     document.body.style.backgroundColor = "lime";
     shiftDivsOrder();
+    addClick();
 }
 
 shiftDivsOrder = () => {
@@ -245,6 +277,7 @@ shiftDivsOrder = () => {
 function refreshScoreDisplay()  {
     score.innerHTML = scoreNum + " correct";
     errors.innerHTML = errorsNum + " incorrect";
+    speedDisplay.innerHTML = clickHistoryInfo.thisSession.averageSpeed.toFixed(0) + "ms average speed"
 }
 
 initButton.onclick = () => {
