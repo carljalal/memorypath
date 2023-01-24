@@ -10,35 +10,100 @@ body {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 </style>
-Version 1.1.0 (1/18/2023)
-<br>
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+</script>
 <script>
+
+let versionInfo = "Version 1.2.0 (1/18/2023)";
 
 let clickHistoryInfo = {
     sessionHistory:[],
     thisSession:{
         clicks:[],
+        clickSpeeds:[],
+        clickSpeedsSorted:[],
+        clickLabels:[],
         totalTime:0,
-        averageSpeed:0
+        averageSpeed:0,
+        min:0,
+        max:0,
+        pc10:0,
+        pc50:0,
+        pc90:0
     }
 };
+
+let clickChart = document.createElement("canvas");
+clickChart.style.width = 500;
+clickChart.style.height = 200;
+
+let chartInstance = new Chart(clickChart, {
+    type: "line",
+    data: {
+        labels:clickHistoryInfo.thisSession.clickLabels,
+        datasets: [{
+            data: clickHistoryInfo.thisSession.clickSpeeds,
+            borderColor: "red",
+            fill: true
+        }]
+    },
+    options: {
+        responsive: false,
+        legend:{
+            display:false
+        }
+    }
+}
+)
+
+
+
+function asc (arr){ 
+    let copy = [...arr];
+    return copy.sort((a, b) => a - b);
+}
+
+
+function quantile (arr, q) {
+    const sorted = asc(arr);
+    const pos = (sorted.length - 1) * q;
+    const base = Math.floor(pos);
+    const rest = pos - base;
+    if (sorted[base + 1] !== undefined) {
+        return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+    } else {
+        return sorted[base];
+    }
+};
+
 
 // move current click session info into history array and reset current click session info
 function newClickSession() {
     clickHistoryInfo.sessionHistory.push(JSON.parse(JSON.stringify(clickHistoryInfo.thisSession)));
     clickHistoryInfo.thisSession = {
         clicks:[],
+        clickSpeeds:[],
+        clickSpeedsSorted:[],
+        clickLabels:[],
         totalTime:0,
-        averageSpeed:0
+        averageSpeed:0,
+        min:0,
+        max:0,
+        pc10:0,
+        pc50:0,
+        pc90:0
     }
 }
 
 function addClick(){
     let session = clickHistoryInfo.thisSession;
     session.clicks.push(performance.now());
+    session.clickLabels.push(session.clickLabels.length);
     if(session.clicks.length > 1){
         session.totalTime = session.clicks[session.clicks.length - 1] - session.clicks[0];
         session.averageSpeed = session.totalTime / (session.clicks.length - 1);
+        session.clickSpeeds.push(session.clicks[session.clicks.length-1] - session.clicks[session.clicks.length-2])
     }
 }
 
@@ -162,6 +227,7 @@ document.body.append(score);
 document.body.append(errors);
 document.body.append(timerEl);
 document.body.append(speedDisplay);
+document.body.append(clickChart);
 
 
 
@@ -202,6 +268,9 @@ resetScores = () => {
     scoreNum = 0;
     errorsNum = 0;
     document.body.style.backgroundColor = "white";
+    chartInstance.data.datasets[0].data = [];
+    chartInstance.data.labels = [];
+    chartInstance.update();
     newClickSession();
     refreshScoreDisplay();
 }
@@ -263,6 +332,12 @@ correct = () => {
     document.body.style.backgroundColor = "lime";
     shiftDivsOrder();
     addClick();
+    //chartInstance.data.datasets[0].data = [];
+    //chartInstance.data.labels = [];
+    //chartInstance.update();
+    chartInstance.data.datasets[0].data = clickHistoryInfo.thisSession.clickSpeeds;
+    chartInstance.data.labels = clickHistoryInfo.thisSession.clickLabels;
+    chartInstance.update();
 }
 
 shiftDivsOrder = () => {
@@ -277,7 +352,12 @@ shiftDivsOrder = () => {
 function refreshScoreDisplay()  {
     score.innerHTML = scoreNum + " correct";
     errors.innerHTML = errorsNum + " incorrect";
-    speedDisplay.innerHTML = clickHistoryInfo.thisSession.averageSpeed.toFixed(0) + "ms average speed"
+    speedDisplay.innerHTML = clickHistoryInfo.thisSession.averageSpeed.toFixed(0) + "ms average ";
+    if(clickHistoryInfo.thisSession.clickSpeeds.length > 1) {
+        speedDisplay.innerHTML += (quantile(clickHistoryInfo.thisSession.clickSpeeds,.1)).toFixed(0) + "ms 10pct ";
+        speedDisplay.innerHTML += (quantile(clickHistoryInfo.thisSession.clickSpeeds,.5)).toFixed(0) + "ms 50pct ";
+        speedDisplay.innerHTML += (quantile(clickHistoryInfo.thisSession.clickSpeeds,.9)).toFixed(0) + "ms 90pct ";
+    }
 }
 
 initButton.onclick = () => {
