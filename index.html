@@ -105,6 +105,9 @@ function addClick(){
         session.averageSpeed = session.totalTime / (session.clicks.length - 1);
         session.clickSpeeds.push(session.clicks[session.clicks.length-1] - session.clicks[session.clicks.length-2])
     }
+    chartInstance.data.datasets[0].data = clickHistoryInfo.thisSession.clickSpeeds;
+    chartInstance.data.labels = clickHistoryInfo.thisSession.clickLabels;
+    chartInstance.update();
 }
 
 
@@ -273,6 +276,7 @@ resetScores = () => {
     chartInstance.update();
     newClickSession();
     refreshScoreDisplay();
+    resetDivs();
 }
 
 resetColors = () => {
@@ -332,12 +336,7 @@ correct = () => {
     document.body.style.backgroundColor = "lime";
     shiftDivsOrder();
     addClick();
-    //chartInstance.data.datasets[0].data = [];
-    //chartInstance.data.labels = [];
-    //chartInstance.update();
-    chartInstance.data.datasets[0].data = clickHistoryInfo.thisSession.clickSpeeds;
-    chartInstance.data.labels = clickHistoryInfo.thisSession.clickLabels;
-    chartInstance.update();
+    
 }
 
 shiftDivsOrder = () => {
